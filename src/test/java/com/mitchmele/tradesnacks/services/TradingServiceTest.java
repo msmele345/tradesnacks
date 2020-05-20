@@ -5,6 +5,7 @@ import com.mitchmele.tradesnacks.models.Trade;
 import com.mitchmele.tradesnacks.mongo.TradeRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -56,5 +57,34 @@ public class TradingServiceTest {
         List<Trade> actual = subject.fetchAllTrades();
 
         assertThat(actual).isEqualTo(expected);
+    }
+
+    @Test
+    public void fetchTradesBySymbol_success_shouldCallRepoFindAllBySymbol() {
+        Trade trade1 = new Trade("SPY", 125.00, LocalDate.now(), "NYSE");
+        Trade trade2 = new Trade("SPY", 126.00, LocalDate.now(), "NYSE");
+
+        List<Trade> trades = asList(trade1, trade2);
+
+        when(mockRepo.findAllBySymbol(any())).thenReturn(trades);
+
+        subject.fetchTradesForSymbol("SPY");
+
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+
+        verify(mockRepo).findAllBySymbol(captor.capture());
+    }
+
+    @Test
+    public void fetchTradesBySymbol_success_shouldReturnTradesBySymbol() {
+        Trade trade1 = new Trade("SPY", 125.00, LocalDate.now(), "NYSE");
+        Trade trade2 = new Trade("SPY", 126.00, LocalDate.now(), "NYSE");
+
+        List<Trade> trades = asList(trade1, trade2);
+
+        when(mockRepo.findAllBySymbol(any())).thenReturn(trades);
+
+        List<Trade> actual = subject.fetchTradesForSymbol("SPY");
+        assertThat(actual).isEqualTo(trades);
     }
 }
