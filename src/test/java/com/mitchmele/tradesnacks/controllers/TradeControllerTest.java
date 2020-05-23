@@ -1,7 +1,6 @@
 package com.mitchmele.tradesnacks.controllers;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mitchmele.tradesnacks.models.Trade;
 import com.mitchmele.tradesnacks.services.TradingService;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,10 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
 import java.time.LocalDate;
 import java.util.List;
-
 import static java.util.Arrays.asList;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -87,7 +84,7 @@ public class TradeControllerTest {
                 .andDo(print())
                 .andExpect(status().is2xxSuccessful());
 
-        verify(mockService).fetchTradesForSymbol("spy");
+        verify(mockService).fetchTradesForSymbol("SPY");
     }
 
 
