@@ -4,6 +4,9 @@ plugins {
 	id 'java'
 }
 
+
+apply from: "$rootDir/gradle/scripts/gradle.gradle"
+
 group = 'com.mitchmele'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '1.8'
@@ -15,6 +18,9 @@ configurations {
 }
 
 repositories {
+//	maven { url 'https://repo.spring.io/milestone' }
+//	maven { url 'https://repo.spring.io/snapshot' }
+	gradlePluginPortal()
 	mavenCentral()
 }
 
@@ -23,6 +29,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 	implementation 'org.springframework.boot:spring-boot-starter-hateoas'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	compile "org.gradle:gradle-tooling-api:4.3"
 
 	implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.3'
 
@@ -51,16 +58,12 @@ task standDownMongo(type: Exec) {
 	commandLine "docker-compose", "down"
 }
 
-task standUp() {
-	group "Testing Infrastructure - Gemfire"
-	dependsOn 'buildDockerImages'
-}
-
 
 task integrationTest(type: Test) {
 	description 'IT tests'
 
 	scanForTestClasses = false
+	outputs.upToDateWhen {false}
 
 	useJUnitPlatform {
 		includeTags 'integrationTest'

@@ -1,0 +1,3 @@
+dependencies {
+    compile "org.gradle:gradle-tooling-api:4.3"
+}

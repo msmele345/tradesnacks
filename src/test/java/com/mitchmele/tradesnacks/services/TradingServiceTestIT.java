@@ -1,14 +1,15 @@
 package com.mitchmele.tradesnacks.services;
 
+import com.mitchmele.tradesnacks.helpers.GradleBuildLauncher;
 import com.mitchmele.tradesnacks.models.Trade;
 import com.mitchmele.tradesnacks.mongo.TradeRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -26,6 +27,18 @@ class TradingServiceTestIT {
     @Autowired
     private TradeRepository tradeRepository;
 
+    @BeforeAll
+    static void beforeAll() throws URISyntaxException {
+        GradleBuildLauncher buildLauncher = new GradleBuildLauncher();
+        buildLauncher.standUpMongo();
+    }
+
+    @AfterAll
+    static void afterAll() throws URISyntaxException {
+        GradleBuildLauncher buildLauncher = new GradleBuildLauncher();
+        buildLauncher.standDownMongo();
+    }
+
     @BeforeEach
     void setUp() {
         tradeRepository.deleteAll();
@@ -41,6 +54,7 @@ class TradingServiceTestIT {
         List<Trade> trades = asList(trade1, trade2, trade3);
 
         tradeRepository.saveAll(trades);
+
 
         List<Trade> actual = tradingService.fetchAllTrades();
         assertThat(actual).isEqualTo(trades);
