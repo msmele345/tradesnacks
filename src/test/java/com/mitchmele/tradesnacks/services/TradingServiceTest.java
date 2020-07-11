@@ -5,9 +5,11 @@ import com.mitchmele.tradesnacks.mongo.TradeRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -15,9 +17,9 @@ import static org.mockito.Mockito.*;
 
 public class TradingServiceTest {
 
-    TradeRepository mockRepo;
+    private TradeRepository mockRepo;
 
-    TradingService subject;
+    private TradingService subject;
 
     @BeforeEach
     void setUp() {

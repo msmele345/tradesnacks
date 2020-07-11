@@ -2,19 +2,17 @@ package com.mitchmele.tradesnacks.services;
 
 import com.mitchmele.tradesnacks.models.Trade;
 import com.mitchmele.tradesnacks.mongo.TradeRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class TradingService {
 
-    TradeRepository tradeRepository;
-
-    public TradingService(TradeRepository tradeRepository) {
-        this.tradeRepository = tradeRepository;
-    }
+    private final TradeRepository tradeRepository;
 
     public List<Trade> fetchAllTrades() throws IOException {
         try {
@@ -30,5 +28,9 @@ public class TradingService {
         } catch (Exception e) {
             throw new IOException(e.getLocalizedMessage());
         }
+    }
+
+    public Trade insertTrade(String jsonTrade) {
+        return null;
     }
 }

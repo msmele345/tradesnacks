@@ -26,6 +26,8 @@ dependencies {
 
 	implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.3'
 
+	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
+	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
 	testImplementation("org.assertj:assertj-core:3.11.1")
 	testImplementation 'org.mockito:mockito-core:2.8.47'
 
@@ -36,6 +38,38 @@ dependencies {
 	}
 }
 
-test {
-	useJUnitPlatform()
+task standUpMongo(type: Exec) {
+	workingDir "$rootDir/docker"
+	description "Standup MongoDb"
+	commandLine "./start_mongo.sh"
 }
+
+
+task standDownMongo(type: Exec) {
+	workingDir "$rootDir/docker"
+	description "StandDown MongoDb"
+	commandLine "docker-compose", "down"
+}
+
+task standUp() {
+	group "Testing Infrastructure - Gemfire"
+	dependsOn 'buildDockerImages'
+}
+
+
+task integrationTest(type: Test) {
+	description 'IT tests'
+
+	scanForTestClasses = false
+
+	useJUnitPlatform {
+		includeTags 'integrationTest'
+	}
+	testLogging {
+		events "passed", "skipped", "failed"
+		showStackTraces true
+		exceptionFormat "full"
+	}
+}
+
+

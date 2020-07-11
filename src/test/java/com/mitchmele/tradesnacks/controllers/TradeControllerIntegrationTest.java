@@ -29,6 +29,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(TradeController.class)
 class TradeControllerIntegrationTest {
 
+    //REMOVE MOCKS THIS IS AN INTEGRATION TEST
+
     @Autowired
     MockMvc mockMvc;
 

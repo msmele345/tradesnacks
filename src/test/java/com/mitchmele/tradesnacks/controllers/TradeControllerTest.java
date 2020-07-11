@@ -6,13 +6,19 @@ import com.mitchmele.tradesnacks.services.TradingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
 import java.time.LocalDate;
 import java.util.List;
+
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -25,6 +31,8 @@ public class TradeControllerTest {
     TradingService mockService;
 
     MockMvc mockMvc;
+
+    private final LocalDate timeOfTrade = LocalDate.of(2020, 5, 19);
 
     @BeforeEach
     void setUp() {
@@ -51,7 +59,6 @@ public class TradeControllerTest {
     @Test
     public void getTrades_success_shouldReturn200AndTradesFromService() throws Exception {
 
-        LocalDate timeOfTrade = LocalDate.of(2020, 5, 19);
 
         Trade trade1 = new Trade("ABC", 50.00, timeOfTrade, "NASDAQ");
         Trade trade2 = new Trade("ABC", 51.00, timeOfTrade, "NASDAQ");
@@ -90,7 +97,6 @@ public class TradeControllerTest {
 
     @Test
     public void getTradesBySymbol_success_shouldReturnTradesForSymbol() throws Exception {
-        LocalDate timeOfTrade = LocalDate.of(2020, 5, 19);
 
         Trade trade1 = new Trade("SPY", 150.00, timeOfTrade, "NASDAQ");
         Trade trade2 = new Trade("SPY", 151.00, timeOfTrade, "NASDAQ");
@@ -108,7 +114,31 @@ public class TradeControllerTest {
                 .andDo(print())
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(content().string(expectedResponse));
+    }
 
+    @Test
+    public void createTrade_success_shouldCallPostTradeOnService() throws Exception {
 
+        String incomingTrade = "{\"symbol\":\"SPY\",\"tradePrice\":150.0,\"timeOfTrade\":{\"year\":2020,\"month\":\"MAY\",\"dayOfWeek\":\"TUESDAY\",\"dayOfYear\":140,\"era\":\"CE\",\"leapYear\":true,\"monthValue\":5,\"dayOfMonth\":19,\"chronology\":{\"id\":\"ISO\",\"calendarType\":\"iso8601\"}},\"exchange\":\"NASDAQ\"}";
+
+        String expectedResponse = "{\"symbol\":\"SPY\",\"tradePrice\":150.0,\"timeOfTrade\":[2020,5,19],\"exchange\":\"NASDAQ\"}";
+
+        Trade expectedContent = new Trade("SPY", 150.00, timeOfTrade, "NASDAQ");
+
+        when(mockService.insertTrade(any())).thenReturn(expectedContent);
+
+        MvcResult mvcResult = mockMvc
+                .perform(post("/trades/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(incomingTrade)
+                )
+                .andDo(print())
+                .andExpect(status().is2xxSuccessful())
+                .andReturn();
+
+        verify(mockService).insertTrade(any());
+
+        MockHttpServletResponse actualResponse = mvcResult.getResponse();
+        assertThat(actualResponse.getContentAsString()).isEqualTo(expectedResponse);
     }
 }
