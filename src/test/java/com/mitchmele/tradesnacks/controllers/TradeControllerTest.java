@@ -1,10 +1,14 @@
 package com.mitchmele.tradesnacks.controllers;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mitchmele.tradesnacks.models.Trade;
+import com.mitchmele.tradesnacks.models.TradeConfirmation;
 import com.mitchmele.tradesnacks.services.TradingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
@@ -26,11 +30,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class TradeControllerTest {
 
 
-    TradeController subject;
+    private TradeController subject;
 
-    TradingService mockService;
+    private TradingService mockService;
 
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     private final LocalDate timeOfTrade = LocalDate.of(2020, 5, 19);
 
@@ -47,7 +51,7 @@ public class TradeControllerTest {
     public void getTrades_success_shouldReturn200AndCallService() throws Exception {
 
         mockMvc.perform(
-                get("/trades/")
+                get("/api/v1/trades/")
                         .contentType(MediaType.APPLICATION_JSON)
         )
                 .andDo(print())
@@ -71,7 +75,7 @@ public class TradeControllerTest {
         String expected = "[{\"symbol\":\"ABC\",\"tradePrice\":50.0,\"timeOfTrade\":[2020,5,19],\"exchange\":\"NASDAQ\"},{\"symbol\":\"ABC\",\"tradePrice\":51.0,\"timeOfTrade\":[2020,5,19],\"exchange\":\"NASDAQ\"},{\"symbol\":\"ABC\",\"tradePrice\":52.0,\"timeOfTrade\":[2020,5,19],\"exchange\":\"NASDAQ\"}]";
 
         mockMvc.perform(
-                get("/trades/")
+                get("/api/v1/trades/")
                         .contentType(MediaType.APPLICATION_JSON)
         )
                 .andDo(print())
@@ -85,7 +89,7 @@ public class TradeControllerTest {
 
         mockMvc
                 .perform(
-                        get("/trades/spy")
+                        get("/api/v1/trades/spy")
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
@@ -108,7 +112,7 @@ public class TradeControllerTest {
         String expectedResponse = "[{\"symbol\":\"SPY\",\"tradePrice\":150.0,\"timeOfTrade\":[2020,5,19],\"exchange\":\"NASDAQ\"},{\"symbol\":\"SPY\",\"tradePrice\":151.0,\"timeOfTrade\":[2020,5,19],\"exchange\":\"NASDAQ\"}]";
         mockMvc
                 .perform(
-                        get("/trades/spy")
+                        get("/api/v1/trades/spy")
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
@@ -121,24 +125,29 @@ public class TradeControllerTest {
 
         String incomingTrade = "{\"symbol\":\"SPY\",\"tradePrice\":150.0,\"timeOfTrade\":{\"year\":2020,\"month\":\"MAY\",\"dayOfWeek\":\"TUESDAY\",\"dayOfYear\":140,\"era\":\"CE\",\"leapYear\":true,\"monthValue\":5,\"dayOfMonth\":19,\"chronology\":{\"id\":\"ISO\",\"calendarType\":\"iso8601\"}},\"exchange\":\"NASDAQ\"}";
 
-        String expectedResponse = "{\"symbol\":\"SPY\",\"tradePrice\":150.0,\"timeOfTrade\":[2020,5,19],\"exchange\":\"NASDAQ\"}";
-
         Trade expectedContent = new Trade("SPY", 150.00, timeOfTrade, "NASDAQ");
-
         when(mockService.insertTrade(any())).thenReturn(expectedContent);
 
-        MvcResult mvcResult = mockMvc
-                .perform(post("/trades/create")
+        TradeConfirmation expectedConfirm = TradeConfirmation.builder()
+                .symbol("SPY")
+                .fillPrice(150.00)
+                .status("Success")
+                .build();
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        String expectedResponse = mapper.writeValueAsString(expectedConfirm);
+
+         mockMvc
+                .perform(post("/api/v1/trades/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(incomingTrade)
                 )
                 .andDo(print())
                 .andExpect(status().is2xxSuccessful())
-                .andReturn();
+                .andExpect(content().string(expectedResponse));
 
         verify(mockService).insertTrade(any());
 
-        MockHttpServletResponse actualResponse = mvcResult.getResponse();
-        assertThat(actualResponse.getContentAsString()).isEqualTo(expectedResponse);
     }
 }

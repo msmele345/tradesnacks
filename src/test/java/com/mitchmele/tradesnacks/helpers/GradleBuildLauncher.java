@@ -2,7 +2,6 @@ package com.mitchmele.tradesnacks.helpers;
 
 import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.GradleConnector;
-import org.gradle.tooling.ProjectConnection;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -12,10 +11,9 @@ import java.net.URISyntaxException;
 @Service
 public class GradleBuildLauncher {
 
-    private final BuildLauncher buildLauncher = create();
+    public GradleBuildLauncher() throws URISyntaxException { }
 
-    public GradleBuildLauncher() throws URISyntaxException {
-    }
+    private final BuildLauncher buildLauncher = create();
 
     private BuildLauncher create() throws URISyntaxException {
         return GradleConnector

@@ -30,19 +30,19 @@ class TradingServiceTestIT {
     @BeforeAll
     static void beforeAll() throws URISyntaxException {
         GradleBuildLauncher buildLauncher = new GradleBuildLauncher();
-        buildLauncher.standUpMongo();
+//        buildLauncher.standUpMongo();
     }
 
     @AfterAll
     static void afterAll() throws URISyntaxException {
         GradleBuildLauncher buildLauncher = new GradleBuildLauncher();
-        buildLauncher.standDownMongo();
+//        buildLauncher.standDownMongo();
     }
 
-    @BeforeEach
-    void setUp() {
-        tradeRepository.deleteAll();
-    }
+//    @BeforeEach
+//    void setUp() {
+//        tradeRepository.deleteAll();
+//    }
 
     @Test
     void serviceReturnsAllTrades() throws IOException {
