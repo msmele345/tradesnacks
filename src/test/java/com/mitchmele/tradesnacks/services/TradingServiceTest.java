@@ -2,12 +2,14 @@ package com.mitchmele.tradesnacks.services;
 
 import com.mitchmele.tradesnacks.models.Trade;
 import com.mitchmele.tradesnacks.mongo.TradeRepository;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -21,6 +23,10 @@ public class TradingServiceTest {
 
     private TradingService subject;
 
+    private ObjectId objectId = new ObjectId();
+
+    private final Date timeOfTrade = mock(Date.class);
+
     @BeforeEach
     void setUp() {
         mockRepo = mock(TradeRepository.class);
@@ -29,9 +35,9 @@ public class TradingServiceTest {
 
     @Test
     public void fetchAllTrades_success_shouldCallTheRep() throws IOException {
-        Trade trade1 = new Trade("ABC", 50.00, LocalDate.now(), "NASDAQ");
-        Trade trade2 = new Trade("ABC", 51.00, LocalDate.now(), "NASDAQ");
-        Trade trade3 = new Trade("ABC", 52.00, LocalDate.now(), "NASDAQ");
+        Trade trade1 = new Trade(objectId, "ABC", 50.00, timeOfTrade, "NASDAQ");
+        Trade trade2 = new Trade(objectId, "ABC", 51.00, timeOfTrade, "NASDAQ");
+        Trade trade3 = new Trade(objectId, "ABC", 52.00, timeOfTrade, "NASDAQ");
 
         List<Trade> expected = asList(trade1, trade2, trade3);
 
@@ -43,9 +49,9 @@ public class TradingServiceTest {
 
     @Test
     public void fetchAllTrades_success_shouldReturnListOfTrades() throws IOException {
-        Trade trade1 = new Trade("ABC", 50.00, LocalDate.now(), "NASDAQ");
-        Trade trade2 = new Trade("ABC", 51.00, LocalDate.now(), "NASDAQ");
-        Trade trade3 = new Trade("ABC", 52.00, LocalDate.now(), "NASDAQ");
+        Trade trade1 = new Trade(objectId, "ABC", 50.00, timeOfTrade, "NASDAQ");
+        Trade trade2 = new Trade(objectId, "ABC", 51.00, timeOfTrade, "NASDAQ");
+        Trade trade3 = new Trade(objectId, "ABC", 52.00, timeOfTrade, "NASDAQ");
 
         List<Trade> expected = asList(trade1, trade2, trade3);
 
@@ -58,8 +64,8 @@ public class TradingServiceTest {
 
     @Test
     public void fetchTradesBySymbol_success_shouldCallRepoFindAllBySymbol() throws IOException {
-        Trade trade1 = new Trade("SPY", 125.00, LocalDate.now(), "NYSE");
-        Trade trade2 = new Trade("SPY", 126.00, LocalDate.now(), "NYSE");
+        Trade trade1 = new Trade(objectId, "SPY", 125.00, timeOfTrade, "NYSE");
+        Trade trade2 = new Trade(objectId, "SPY", 126.00, timeOfTrade, "NYSE");
 
         List<Trade> trades = asList(trade1, trade2);
 
@@ -74,8 +80,8 @@ public class TradingServiceTest {
 
     @Test
     public void fetchTradesBySymbol_success_shouldReturnTradesBySymbol() throws IOException {
-        Trade trade1 = new Trade("SPY", 125.00, LocalDate.now(), "NYSE");
-        Trade trade2 = new Trade("SPY", 126.00, LocalDate.now(), "NYSE");
+        Trade trade1 = new Trade(objectId, "SPY", 125.00, timeOfTrade, "NYSE");
+        Trade trade2 = new Trade(objectId, "SPY", 126.00, timeOfTrade, "NYSE");
 
         List<Trade> trades = asList(trade1, trade2);
 
@@ -103,5 +109,16 @@ public class TradingServiceTest {
         assertThatThrownBy(() -> subject.fetchTradesForSymbol("BAD"))
                 .isInstanceOf(IOException.class)
                 .hasMessage("bad news for this symbol");
+    }
+
+    @Test
+    void insertTrades_callsRepositorySaveAllWithListOfTrades() {
+        Trade trade1 = new Trade(objectId, "SPY", 125.00, timeOfTrade, "NYSE");
+        Trade trade2 = new Trade(objectId, "SPY", 126.00, timeOfTrade, "NYSE");
+
+        List<Trade> trades = asList(trade1, trade2);
+
+        subject.insertTrades(trades);
+        verify(mockRepo).saveAll(trades);
     }
 }

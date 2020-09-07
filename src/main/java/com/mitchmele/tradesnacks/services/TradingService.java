@@ -4,7 +4,6 @@ import com.mitchmele.tradesnacks.models.Trade;
 import com.mitchmele.tradesnacks.mongo.TradeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.io.IOException;
 import java.util.List;
 
@@ -28,6 +27,10 @@ public class TradingService {
         } catch (Exception e) {
             throw new IOException(e.getLocalizedMessage());
         }
+    }
+
+    public void insertTrades(List<Trade> trades) {
+        tradeRepository.saveAll(trades);
     }
 
     public Trade insertTrade(String jsonTrade) {

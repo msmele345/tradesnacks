@@ -15,7 +15,6 @@ public class RestAdvice {
         return defaultHandler(e);
     }
 
-
     private ErrorResponse defaultHandler(Throwable t) {
         return ErrorResponse.builder()
                 .exception(t.getClass().getSimpleName())

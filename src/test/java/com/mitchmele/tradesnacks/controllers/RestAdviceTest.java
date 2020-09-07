@@ -3,6 +3,7 @@ package com.mitchmele.tradesnacks.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mitchmele.tradesnacks.models.ErrorResponse;
+import com.mitchmele.tradesnacks.services.LoadingService;
 import com.mitchmele.tradesnacks.services.TradingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,8 +20,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class RestAdviceTest {
 
-
     private TradingService tradingService;
+
+    private LoadingService loadingService;
 
     private TradeController tradeController;
 
@@ -29,8 +31,10 @@ public class RestAdviceTest {
 
     @BeforeEach
     void setUp() {
+
         tradingService = mock(TradingService.class);
-        tradeController = new TradeController(tradingService);
+        loadingService = mock(LoadingService.class);
+        tradeController = new TradeController(tradingService, loadingService);
         mockMvc = MockMvcBuilders
                 .standaloneSetup(tradeController)
                 .setControllerAdvice(new RestAdvice())
